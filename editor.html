@@ -4,15 +4,6 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<meta name="author" content="Sokratis Karkalas">  
 	<title>3 Days JS Graphics</title>
-	<script type="text/javascript" charset="utf-8" src="./scripts/graphics.js"></script> 
-	<script type="text/javascript" charset="utf-8" src="./scripts/editor.js"></script> 
-<script>
-function display()
-{
-	var text = document.getElementById('text').value;
-	eval(text);
-}
-</script>
 </head>
 
 <body>
@@ -26,6 +17,17 @@ function display()
 <br/>
 
 <input type='button' value='draw' onclick='display()'></input>
+
+<script type="text/javascript" charset="utf-8" src="https://dl.dropboxusercontent.com/u/15318052/LKLProjects/3DaysJSDebugger/scripts/debugger.js"></script> 
+<script type="text/javascript" charset="utf-8" src="./scripts/graphics.js"></script> 
+<script type="text/javascript" charset="utf-8" src="./scripts/editor.js"></script> 
+<script>
+function display()
+{
+	var text = document.getElementById('text').value;
+	eval(text);
+}
+</script>
 
 </body>
 </html>

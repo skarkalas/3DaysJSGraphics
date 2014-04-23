@@ -1,10 +1,16 @@
+//set up debugger
+if(typeof debug === 'undefined')
+{
+	var debug=new Debugger();
+}
+
 //definition for Graphics
 //============================================================
 	
 //constructor
 function Graphics()
 {
-	Graphics.message('a new Graphics instance is created');
+	debug.info('(Graphics) a new Graphics instance is created');
 
 	//member variables
 	//========================================================
@@ -32,7 +38,7 @@ function Graphics()
 	this.defaultFillGradientStyle='linear';
 	this.fillGradientStyle=this.defaultFillGradientStyle;
 
-	Graphics.message('member variables are initialised');
+	debug.info('(Graphics) member variables are initialised');
 	
 	//member functions
 	//========================================================		
@@ -50,37 +56,36 @@ function Graphics()
 		
 		try
 		{
-			var canvasName=Graphics.string(canvas);
+			var canvasName=Debugger.string(canvas);
 			
 			//get the DOM object
 			canvasref=document.getElementById(canvasName);
 			
 			//check whether it is a valid DOM object
-			Graphics.HTMLreference(canvasref);
+			Debugger.HTMLreference(canvasref);
 			
 			//get the context function
 			var context=canvasref.getContext(this.defaultContext);
-//alert(typeof context);			
+	
 			//check to see whether it is a valid function
-//			Graphics.FUNCTIONreference(context);
+			Debugger.POJOreference(context);
 			
-
 			//update the member variable with the ref
 			this.canvas=canvasref;
 		}
 		catch(error)
 		{
 			this.canvas=null;
-			Graphics.error(error);
-			Graphics.message('setCanvas: canvas is not initialised (problem)');		
+			debug.error(error);
+			debug.warn('(Graphics) setCanvas: canvas is not initialised (problem)');		
 			return;
 		}		
 
-		Graphics.message('canvas is initialised');
+		debug.info('(Graphics) setCanvas: canvas is initialised');
 	}
 	
 	//resizes the canvas and retains the contents
-	this.resize=function(width,height)
+	this.resize=function(width, height)
 	{
 		try
 		{
@@ -91,8 +96,8 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('resize: canvas not resized (problem)');		
+			debug.error(error);
+			debug.warn('resize: canvas not resized (problem)');		
 			return;
 		}
 		
@@ -122,7 +127,7 @@ function Graphics()
 			this.canvas.height=height;				
 		}
 		
-		Graphics.message('resize: canvas is resized');
+		debug.info('(Graphics) resize: canvas is resized');
 	}
 
 	//checks the state of canvas
@@ -148,22 +153,23 @@ function Graphics()
 	{
 		try
 		{
-			context=Graphics.string(context);
+			context=Debugger.string(context);
 
-			if(context!=='2d'&&context!=='3d')
+			if(context!=='2d')
 			{
-				throw new RangeError('setContext: invalid context value: this value should be either 2D or 3D');
+				throw new RangeError('setContext: invalid context value: this value should be 2D (only 2D is supported at the moment');
 			}
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('setContext: new context is set to default (problem)');		
+			Debugger.error(error);
+			this.context=this.defaultContext;
+			Debugger.warn('setContext: new context is set to default');		
 			return;
 		}
 	
 		this.context=context;	
-		Graphics.message('setContext: context is initialised');
+		debug.info('(Graphics) setContext: context is initialised');
 	}
 	
 	//accessor for context
@@ -178,7 +184,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return null;
 		}
 
@@ -197,7 +203,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return false;
 		}
 
@@ -208,12 +214,12 @@ function Graphics()
 			if(this.fillActive===false)
 			{
 				context.clearRect(0,0,this.canvas.width,this.canvas.height);
-				Graphics.message('background: canvas is transparent');
+				debug.info('(Graphics) background: canvas is transparent');
 			}
 			else
 			{
 				this.rect(0,0,this.canvas.width,this.canvas.height);
-				Graphics.message('background: canvas is given a new colour');
+				debug.info('(Graphics) background: canvas is given a new colour');
 			}
 		}
 	}
@@ -233,20 +239,21 @@ function Graphics()
 		
 		try
 		{
-			color=Graphics.color(red,green,blue);
-			stop=Graphics.number(stop,0,1);
+			color=Debugger.color(red,green,blue);
+			stop=Debugger.number(stop,0,1);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('addGradientColor: new gradient fill color is not set (problem)');
+			debug.error(error);
+			debug.warn('addGradientColor: new gradient fill color is not set (problem)');
 			return;
 		}
 		
 		var colorStop={};
 		colorStop.stop=stop;
-		colorStop.color='rgb('+red+','+green+','+blue+')';
+		colorStop.color=color;
 		this.gradientColors.push(colorStop);
+		debug.info('(Graphics) addGradientColor: gradient color added');
 	}
 
 	//resets the array of gradient colors
@@ -255,7 +262,7 @@ function Graphics()
 		this.gradientColors=this.defaultGradientColors;
 	}
 
-	//sets the colour to be used for painting the area of shapes
+	//sets the colours to be used for painting
 	this.fillGradient=function()
 	{
 		var args=Array.prototype.slice.call(arguments);
@@ -267,10 +274,10 @@ function Graphics()
 						var y1=args[1];
 						var x2=args[2];
 						var y2=args[3];
-						Graphics.number(x1,0,this.canvas.width);
-						Graphics.number(y1,0,this.canvas.height);
-						Graphics.number(x2,0,this.canvas.width);
-						Graphics.number(y2,0,this.canvas.height);
+						Debugger.number(x1,0,this.canvas.width);
+						Debugger.number(y1,0,this.canvas.height);
+						Debugger.number(x2,0,this.canvas.width);
+						Debugger.number(y2,0,this.canvas.height);
 
 						if(this.pointWithinRange(x1,y1)===false||this.pointWithinRange(x2,y2)===false)
 						{
@@ -287,12 +294,12 @@ function Graphics()
 						var x2=args[3];
 						var y2=args[4];
 						var r2=args[5];
-						Graphics.number(x1,0,this.canvas.width);
-						Graphics.number(y1,0,this.canvas.height);
-						Graphics.number(r1);
-						Graphics.number(x2,0,this.canvas.width);
-						Graphics.number(y2,0,this.canvas.height);
-						Graphics.number(r2);
+						Debugger.number(x1,0,this.canvas.width);
+						Debugger.number(y1,0,this.canvas.height);
+						Debugger.number(r1);
+						Debugger.number(x2,0,this.canvas.width);
+						Debugger.number(y2,0,this.canvas.height);
+						Debugger.number(r2);
 						
 						if(this.pointWithinRange(x1,y1)===false||this.pointWithinRange(x2,y2)===false)
 						{
@@ -309,35 +316,35 @@ function Graphics()
 		catch(error)
 		{
 			this.fillGradientActive=false;
-			Graphics.error(error);
-			Graphics.message('fillGradient: is not active - new gradient parameters are not set (problem)');
+			debug.error(error);
+			debug.warn('fillGradient: is not active - new gradient parameters are not set (problem)');
 			return;
 		}		
 		
 		this.fillGradientActive=true;
 		this.fillActive=true;
-		Graphics.message('fillGradient: fillGradient is active - new gradient parameters are set');
+		debug.info('(Graphics) fillGradient: fillGradient is active - new gradient parameters are set');
 	}
 	
-	//sets the colour to be used for painting the area of shapes
+	//sets the colour to be used for painting
 	this.fill=function(red,green,blue)
 	{
 		var color=null;
 		
 		try
 		{
-			color=Graphics.color(red,green,blue);
+			color=Debugger.color(red,green,blue);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('fill: new fill color is not set (problem)');
+			debug.error(error);
+			debug.warn('fill: new fill color is not set (problem)');
 			return;
 		}		
 		
 		this.fillStyle=color;
 		this.fillActive=true;
-		Graphics.message('fill: fill is active - new fill color is set');
+		debug.info('(Graphics) fill: fill is active - new fill color is set');
 	}
 	
 	//sets the colour to be used for painting the area of shapes to default (white)	
@@ -345,7 +352,8 @@ function Graphics()
 	{
 		this.fillStyle=this.defaultFillStyle;
 		this.fillActive=false;
-		Graphics.message('noFill: fill is inactive - fill color is reset to default');
+		this.fillGradientActive=false;
+		debug.info('(Graphics) noFill: fill is inactive - fill color is reset to default');
 	}
 	
 	//sets the width of the stroke for points and lines
@@ -353,17 +361,17 @@ function Graphics()
 	{
 		try
 		{
-			size=Graphics.number(size);
+			size=Debugger.number(size);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('strokeWeight: stroke weight cannot be changed (problem)');
+			debug.error(error);
+			debug.warn('strokeWeight: stroke weight cannot be changed (problem)');
 			return;
 		}				
 			
 		this.strokeWidth=size;
-		Graphics.message('strokeWeight: new stroke weight is chosen');
+		debug.info('(Graphics) strokeWeight: new stroke weight is chosen');
 	}
 
 	//sets the colour to be used for painting the perimeter of shapes
@@ -380,12 +388,12 @@ function Graphics()
 		
 			try
 			{
-				color=Graphics.color(red,green,blue);
+				color=Debugger.color(red,green,blue);
 			}
 			catch(error)
 			{
-				Graphics.error(error);
-				Graphics.message('stroke: new stroke color is not set (problem)');
+				debug.error(error);
+				debug.warn('stroke: new stroke color is not set (problem)');
 				this.strokeActive=false;
 				return;
 			}		
@@ -399,7 +407,7 @@ function Graphics()
 		}
 		
 		this.strokeActive=true;
-		Graphics.message('stroke: stroke is active - new stroke color is chosen');
+		debug.info('(Graphics) stroke: stroke is active - new stroke color is chosen');
 	}
 
 	//sets the colour to be used for painting the perimeter of shapes to the default (white)
@@ -407,7 +415,7 @@ function Graphics()
 	{
 		this.strokeStyle=this.defaultStrokeStyle;
 		this.strokeActive=false;
-		Graphics.message('noStroke: stroke is inactive - stroke color is reset to default');
+		debug.info('(Graphics) noStroke: stroke is inactive - stroke color is reset to default');
 	}
 
 	//checks whether the coordinates of the given rectangular area are within the bounds of the canvas
@@ -415,33 +423,50 @@ function Graphics()
 	{
 		try
 		{
-			Graphics.number(x,0,this.canvas.width);
-			Graphics.number(y,0,this.canvas.height);
-			Graphics.number(width,0,this.canvas.width-x);
-			Graphics.number(height,0,this.canvas.height-y);
+			Debugger.numberInRange(x,0,this.canvas.width);
+			Debugger.numberInRange(y,0,this.canvas.height);
+			Debugger.numberInRange(width,0,this.canvas.width-x);
+			Debugger.numberInRange(height,0,this.canvas.height-y);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('withinBounds: rectangle not within bounds (problem)');
+			debug.error(error);
+			debug.warn('withinBounds: rectangle not within bounds (problem)');
 			throw new Error('withinBounds: rectangle not within bounds - rendering is not possible');
 		}		
 	}
 
-	//diplays a rectange
+	//returns gradient
 	this.getGradient=function(context)
 	{
 		var gradient=null;
 		var coord=this.fillGradientCoordinates;
 		
-		if(this.fillGradientStyle==='linear')
+		try
 		{
-			gradient=context.createLinearGradient(coord[0],coord[1],coord[2],coord[3]);
+			if(this.fillGradientStyle==='linear')
+			{
+				if(coord.length !== 4)
+				{
+					throw new Error('getGradient: linear gradient style requires coordinates of two points');
+				}
+				gradient=context.createLinearGradient(coord[0],coord[1],coord[2],coord[3]);
+			}
+			else
+			{
+				if(coord.length !== 6)
+				{
+					throw new Error('getGradient: radial gradient style requires coordinates of two points and their corresponging r');
+				}
+				gradient=context.createRadialGradient(coord[0],coord[1],coord[2],coord[3],coord[4],coord[5]);
+			}
 		}
-		else
+		catch(error)
 		{
-			gradient=context.createRadialGradient(coord[0],coord[1],coord[2],coord[3],coord[4],coord[5]);
-		}
+			debug.error(error);
+			debug.warn('getGradient: gradient cannot be created (problem)');
+			return null;
+		}	
 		
 		for(var o in this.gradientColors)
 		{
@@ -451,7 +476,7 @@ function Graphics()
 		return gradient;
 	}
 
-	//diplays a rectange
+	//diplays an image
 	this.image=function(url,x,y)
 	{
 		try
@@ -461,13 +486,13 @@ function Graphics()
 				throw new Error('image: canvas 2D is not ready - rendering is not possible');
 			}
 			
-			Graphics.string(url);
-			Graphics.number(x,0,this.canvas.width);
-			Graphics.number(y,0,this.canvas.height);
+			Debugger.string(url);
+			Debugger.numberInRange(x,0,this.canvas.width);
+			Debugger.numberInRange(y,0,this.canvas.height);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 	
@@ -498,7 +523,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 	
@@ -528,7 +553,7 @@ function Graphics()
 			}
 		}
 
-		Graphics.message('rect: a rectangle is displayed');
+		debug.info('(Graphics) rect: a rectangle is displayed');
 	}
 
 	//displays a dot
@@ -565,7 +590,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 					
@@ -599,7 +624,7 @@ function Graphics()
 			}
 		}
 		
-		Graphics.message('circle: a circle is displayed');
+		debug.info('(Graphics) circle: a circle is displayed');
 	}
 
 	//displays an ellipse
@@ -614,7 +639,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 					
@@ -659,7 +684,7 @@ function Graphics()
 			}
 		}
 		
-		Graphics.message('ellipse: an ellipse is displayed');
+		debug.info('(Graphics) ellipse: an ellipse is displayed');
 	}
 
 	//diplays a triangle
@@ -674,7 +699,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 					
@@ -710,7 +735,7 @@ function Graphics()
 			}
 		}
 		
-		Graphics.message('triangle: a triangle is displayed');
+		debug.info('(Graphics) triangle: a triangle is displayed');
 	}
 	
 	//diplays a bezier curve
@@ -736,7 +761,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 		
@@ -756,7 +781,7 @@ function Graphics()
 			}
 		}
 		
-		Graphics.message('bezier: a bezier curve is displayed');
+		debug.info('(Graphics) bezier: a bezier curve is displayed');
 	}
 	
 	//displays a line
@@ -775,7 +800,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 
@@ -793,7 +818,7 @@ function Graphics()
 			}
 		}
 		
-		Graphics.message('line: a line is displayed');
+		debug.info('(Graphics) line: a line is displayed');
 	}
 	
 	//checks whether the given point is within range on the canvas area
@@ -834,7 +859,7 @@ function Graphics()
 	//displays a textual representation of the graphics object
 	this.displayInfo=function()
 	{
-		Graphics.message(this.toString());
+		debug.info(this.toString());
 	};
 	
 	//mutator for font family
@@ -904,14 +929,14 @@ function Graphics()
 	{
 		try
 		{
-			family=Graphics.string(family);
-			size=Graphics.number(size);
-			style=Graphics.string(style);
+			family=Debugger.string(family);
+			size=Debugger.number(size);
+			style=Debugger.string(style);
 		}
 		catch(error)
 		{
-			Graphics.error(error);
-			Graphics.message('font: new font is not set (problem)');		
+			debug.error(error);
+			debug.warn('font: new font is not set (problem)');		
 			return;
 		}
 		
@@ -919,7 +944,7 @@ function Graphics()
 		this.setFontSize(size);
 		this.setFontStyle(style);
 		
-		Graphics.message('font: new font is set');
+		debug.info('(Graphics) font: new font is set');
 	}
 	
 	//displays the given text on the canvas
@@ -939,7 +964,7 @@ function Graphics()
 		}
 		catch(error)
 		{
-			Graphics.error(error);
+			debug.error(error);
 			return;
 		}
 				
@@ -963,192 +988,9 @@ function Graphics()
 			}					
 		}
 		
-		Graphics.message('text: a line of text is displayed');
+		debug.info('(Graphics) text: a line of text is displayed');
 	}
 }
-
-//non-member (static) functions
-//============================================================
-//handles errors
-Graphics.error=function(error)
-{
-	if(error instanceof Error===false)
-	{
-		throw new Error('error handler was called with a non-error parameter');
-	}
-	
-	if (typeof console!=="undefined")
-	{
-		console.error("(Graphics) Error type: %s ==> Error message: %s",error.name,error.message);
-	}
-	else
-	{
-		alert("(Graphics) Error type: %s ==> Error message: %s",error.name,error.message);
-	}
-}
-
-//handles errors
-Graphics.message=function()
-{
-	if (typeof console!=="undefined")
-	{
-		for(var i=0;i<arguments.length;i++)
-		{
-			var argument=arguments[i];
-			var specifier=Graphics.format(argument);
-			
-			if(specifier!==null)
-			{
-				console.info('(Graphics) '+specifier,argument);
-			}
-		}
-	}
-}
-
-//formats data
-Graphics.format=function(data)
-{
-	//%s string, %d%i integer, %f float, %o dom object, %O POJO, %c css
-	var type=typeof data;
-	var specifier=null;
-	
-	if(type==='number')
-	{
-		if(data%1===0)
-		{
-			specifier='%i';					//integer
-		}
-		else
-		{
-			specifier='%f';					//real
-		}
-	}
-	else if(type==='string')
-	{
-		specifier='%s';						//string
-	}
-	else if(type==='object')
-	{
-		if(data instanceof HTMLElement)
-		{
-			specifier='%o';					//dom
-		}
-		else
-		{
-			specifier='%O';					//POJO
-		}
-	}
-	
-	return specifier;
-}
-
-//performs input validation for numeric values
-Graphics.number=function()
-{
-	var value=null;
-	var from=null;
-	var to=null;
-	
-	switch(arguments.length)
-	{
-		case 3: to=arguments[2];
-				from=arguments[1];
-		case 1: value=arguments[0];break;
-		default: throw new Error('incorrect number of arguments given for number validation');
-	}
-
-	var valid=typeof value==='number';
-
-	if(arguments.length>1)
-	{
-		valid=valid&&typeof from==='number';
-		valid=valid&&typeof to==='number';	
-	}
-	
-	if(valid===false)
-	{
-		throw new TypeError('number: values must be numeric');
-	}
-
-	if(arguments.length>1)
-	{
-		if(value>=from&&value<=to)
-		{
-			return value;
-		}
-		else
-		{
-			throw new RangeError('number: values must be within the range '+from+'-'+to);
-		}
-	}
-	
-	return value;
-}
-
-//performs input validation for text values
-Graphics.string=function(value)
-{
-	//return (typeof value === 'string'?value:null);
-	
-	if(typeof value !== 'string')
-	{
-		throw new TypeError('invalid type: this value should be a string');
-	}
-	
-	return value;
-}
-
-//performs input validation for POJO reference values
-Graphics.FUNCTIONreference=function(value)
-{
-	if(typeof value!=='function')
-	{
-		throw new TypeError('invalid type: this value should be a Function');
-	}
-	
-	return value;
-}
-
-//performs input validation for POJO reference values
-Graphics.POJOreference=function(value)
-{
-	if(typeof value!=='object')
-	{
-		throw new TypeError('invalid type: this value should be a POJO');
-	}
-	
-	return value;
-}
-
-//performs input validation for DOM reference values
-Graphics.HTMLreference=function(value)
-{
-	if(!(typeof value==='object'&&value instanceof HTMLElement))
-	{
-		throw new TypeError('invalid type: this value should be a DOM object');
-	}
-	
-	return value;
-}
-
-//performs input validation for color values in rgb form
-Graphics.color=function(red,green,blue)
-{
-	try
-	{
-		Graphics.number(red,0,255);
-		Graphics.number(green,0,255);
-		Graphics.number(blue,0,255);
-	}
-	catch(error)
-	{
-		Graphics.error(error);
-		throw new TypeError('color: invalid parameters, rgb values nust be within the range 0-255');
-	}
-
-	return 'rgb('+red+','+green+','+blue+')';
-}
-
 
 /*
 **	public methods
@@ -1175,7 +1017,6 @@ Graphics.color=function(red,green,blue)
 **	image(url,x,y)
 **/
 
-
 /*
 	draw a line
 	-----------
@@ -1192,4 +1033,35 @@ Graphics.color=function(red,green,blue)
 	graphics.fill(50,60,80);
 	graphics.font('times new roman',50,'italic');
 	graphics.text('sokratis',20,30);
+	
+	
+	tests
+	------
+	graphics.resize(600,500);
+	alert(graphics.canvasReady());
+	alert(graphics.canvas2DReady());
+	alert(graphics.canvas3DReady());
+	graphics.background();
+	graphics.clear();
+	graphics.addGradientColor(120,241,98,0.5);
+	graphics.fillGradient(20,20,60,150,300,40);
+	graphics.rect(10,30,160,310);
+	graphics.fill(140,30,160);	
+	graphics.rect(10,30,160,310);
+	graphics.strokeWeight(5);	
+	graphics.stroke(10,30,160);
+	graphics.rect(10,30,160,310);
+	graphics.image('https://dl.dropboxusercontent.com/u/15318052/LKLProjects/3DaysJSGraphics/images/spidy.jpg', 20,20);
+	graphics.dot(150, 200);
+	graphics.strokeWeight(1);	
+	graphics.stroke(10,30,160);
+	graphics.circle(200, 200, 60);
+	graphics.ellipse(200, 200, 60, 80);
+	graphics.triangle(50, 80, 160, 180, 450, 40);
+	graphics.bezier(50, 80, 160, 180, 450, 40, 80, 480);
+	graphics.line(50, 80, 350, 480);
+	graphics.setFontFamily('serif');
+	graphics.setFontSize(200);
+	graphics.setFontStyle('italic');
+	graphics.text('soky', 200, 300);	
 */
